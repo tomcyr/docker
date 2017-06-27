@@ -22,7 +22,7 @@ fi
 docker run \
        --rm \
        -it \
-       --user="$UID" \
+       --user=0 \
        --privileged \
        -v /tmp/.X11-unix:/tmp/.X11-unix \
        -v /dev/bus/usb:/dev/bus/usb \
