@@ -29,8 +29,8 @@ RUN DEBIAN_FRONTEND=noninteractive echo "deb http://ppa.launchpad.net/webupd8tea
 ## Install Android SDK
 ##
 # Set correct environment variables.
-ENV ANDROID_SDK_FILE android-sdk_r23.0.1-linux.tgz
-ENV ANDROID_SDK_URL http://dl.google.com/android/$ANDROID_SDK_FILE
+#ENV ANDROID_SDK_FILE android-sdk_r23.0.1-linux.tgz
+#ENV ANDROID_SDK_URL http://dl.google.com/android/$ANDROID_SDK_FILE
 
 # Install 32bit support for Android SDK
 RUN dpkg --add-architecture i386 && \
@@ -42,39 +42,92 @@ RUN dpkg --add-architecture i386 && \
 
 # Install Android SDK
 ENV ANDROID_HOME /usr/local/android-sdk-linux
-RUN cd /usr/local && \
-    wget $ANDROID_SDK_URL && \
-    tar -xzf $ANDROID_SDK_FILE && \
-    export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools && \
+RUN cd /usr/local && wget -q https://dl.google.com/android/android-sdk_r24.4.1-linux.tgz -O android-sdk.tgz
+RUN cd /usr/local && tar -xvzf android-sdk.tgz
+RUN cd /opt && rm -f android-sdk.tgz
+
+RUN export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools && \
     chgrp -R users $ANDROID_HOME && \
-    chmod -R 0775 $ANDROID_HOME && \
-    rm $ANDROID_SDK_FILE
+    chmod -R 0775 $ANDROID_HOME
+
+#RUN cd /usr/local && \
+#    wget $ANDROID_SDK_URL && \
+#    tar -xzf $ANDROID_SDK_FILE && \
+#    export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools && \
+#    chgrp -R users $ANDROID_HOME && \
+#    chmod -R 0775 $ANDROID_HOME && \
+#    rm $ANDROID_SDK_FILE
 
 # Install android tools and system-image.
 
-ENV PATH $PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/25.0.2
-RUN echo y | android update sdk \
-    --no-ui \
-    --force \
-    --all \
-    --filter platform-tools,android-23,build-tools-23.0.1,extra-android-support,extra-android-m2repository,sys-img-x86_64-android-23,extra-google-m2repository
+ENV PATH $PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/23.0.1
+#RUN echo "y" | android update sdk \
+#    --no-ui \
+#    --force \
+#    --all \
+#    --filter platform-tools,android-23,build-tools-23.0.1,extra-android-support,extra-android-m2repository,sys-img-x86_64-android-23,extra-google-m2repository
 
-#RUN cd /usr/local \
-# && echo y | android-sdk-linux/tools/bin/sdkmanager "platforms;android-25" \
-# && echo y | android-sdk-linux/tools/bin/sdkmanager "platform-tools" \
-# && echo y | android-sdk-linux/tools/bin/sdkmanager "build-tools;25.0.2" \
-# && echo y | android-sdk-linux/tools/bin/sdkmanager "extras;android;m2repository" \
-# && echo y | android-sdk-linux/tools/bin/sdkmanager "extras;google;google_play_services" \
-# && echo y | android-sdk-linux/tools/bin/sdkmanager "extras;google;m2repository" \
-# && echo y | android-sdk-linux/tools/bin/sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout;1.0.2" \
-# && echo y | android-sdk-linux/tools/bin/sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2" \
-# && rm -rf /tmp/* 
+#RUN echo "y" | android update sdk --no-ui --force --all --filter "platform-tools" \
+# && echo "y" | android update sdk --no-ui --force --all --filter "android-23" \
+# && echo "y" | android update sdk --no-ui --force --all --filter "build-tools-23.0.1" \
+# && echo "y" | android update sdk --no-ui --force --all --filter "extra-android-support" \
+# && echo "y" | android update sdk --no-ui --force --all --filter "extra-android-m2repository" \
+# && echo "y" | android update sdk --no-ui --force --all --filter "sys-img-x86_64-android-23" \
+# && echo "y" | android update sdk --no-ui --force --all --filter "extra-google-m2repository"
+
+RUN echo y | android update sdk --no-ui --all --filter platform-tools | grep 'package installed'
+RUN echo y | android update sdk --no-ui --all --filter extra-android-support
+
+# SDKs
+# Please keep these in descending order!
+RUN echo y | android update sdk --no-ui --all --filter android-25
+RUN echo y | android update sdk --no-ui --all --filter android-24
+RUN echo y | android update sdk --no-ui --all --filter android-23
+RUN echo y | android update sdk --no-ui --all --filter android-18
+RUN echo y | android update sdk --no-ui --all --filter android-16
+
+# build tools
+# Please keep these in descending order!
+RUN echo y | android update sdk --no-ui --all --filter build-tools-25.0.3
+RUN echo y | android update sdk --no-ui --all --filter build-tools-25.0.2
+RUN echo y | android update sdk --no-ui --all --filter build-tools-25.0.1
+RUN echo y | android update sdk --no-ui --all --filter build-tools-25.0.0
+RUN echo y | android update sdk --no-ui --all --filter build-tools-24.0.3
+RUN echo y | android update sdk --no-ui --all --filter build-tools-24.0.2
+RUN echo y | android update sdk --no-ui --all --filter build-tools-24.0.1
+RUN echo y | android update sdk --no-ui --all --filter build-tools-23.0.3
+RUN echo y | android update sdk --no-ui --all --filter build-tools-23.0.2
+RUN echo y | android update sdk --no-ui --all --filter build-tools-23.0.1
+
+# Android System Images, for emulators
+# Please keep these in descending order!
+#RUN echo y | android update sdk --no-ui --all --filter sys-img-x86_64-android-25
+#RUN echo y | android update sdk --no-ui --all --filter sys-img-x86-android-25
+#RUN echo y | android update sdk --no-ui --all --filter sys-img-armeabi-v7a-android-25
+
+RUN echo y | android update sdk --no-ui --all --filter sys-img-x86_64-android-24
+RUN echo y | android update sdk --no-ui --all --filter sys-img-x86-android-24
+RUN echo y | android update sdk --no-ui --all --filter sys-img-armeabi-v7a-android-24
+
+#RUN echo y | android update sdk --no-ui --all --filter sys-img-x86-android-23
+#RUN echo y | android update sdk --no-ui --all --filter sys-img-armeabi-v7a-android-23
+
+# Extras
+RUN echo y | android update sdk --no-ui --all --filter extra-android-m2repository
+RUN echo y | android update sdk --no-ui --all --filter extra-google-m2repository
+
+#RUN $ANDROID_HOME/tools/android-accept-licenses.sh android update sdk --no-ui --obsolete --force
 
 
 ##
 ## Install react native
 ##
 RUN npm install -g react-native-cli
+
+##
+## Install Ignite cli
+##
+RUN npm install -g ignite-cli
 
 # Clean up when done.
 RUN apt-get clean && \
